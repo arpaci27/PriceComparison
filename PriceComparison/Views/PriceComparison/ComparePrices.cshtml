@@ -1,12 +1,43 @@
-﻿@model List<(string site, string name, string price)>
+﻿@model List<(string site, string name, string price, string imageUrl)>
 
 <h2>Arama Sonuçları</h2>
-<table>
+<br />
+<h3>En Uygun Fiyat</h3>
+@if (ViewBag.LowestPrice is not null)
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Site</th>
+                <th>Ürün Adı</th>
+                <th>Fiyat</th>
+                <th>Resim</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@ViewBag.LowestPrice.Item1</td>
+                <td>@ViewBag.LowestPrice.Item2</td>
+                <td>@ViewBag.LowestPrice.Item3</td>
+                <td>
+                    <img src="@ViewBag.LowestPrice.ImageUrl" alt="En Uygun Fiyat Resmi" style="width:100px;height:auto;" />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No prices available.</p>
+}
+
+<table class="table table-bordered">
     <thead>
         <tr>
             <th>Site</th>
             <th>Ürün Adı</th>
             <th>Fiyat</th>
+            <th>Resim</th>
         </tr>
     </thead>
     <tbody>
@@ -16,18 +47,10 @@
                 <td>@result.site</td>
                 <td>@result.name</td>
                 <td>@result.price</td>
+                <td>
+                    <img src="@result.imageUrl" alt="Ürün Resmi" style="width:100px;height:auto;" />
+                </td>
             </tr>
         }
     </tbody>
 </table>
-
-<h3>En Uygun Fiyat</h3>
-@if (ViewBag.LowestPrice is not null)
-{
-    <p>Lowest Price: @ViewBag.LowestPrice.Item1 - @ViewBag.LowestPrice.Item2 - @ViewBag.LowestPrice.Item3</p>
-}
-else
-{
-    <p>No prices available.</p>
-}
-

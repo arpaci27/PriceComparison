@@ -1,15 +1,76 @@
-﻿@{
-    ViewData["Title"] = "Ürün Arama";
-}
+﻿<h2>Ürün Arama</h2>
 
-<h2>Ürün Arama</h2>
-
-<form method="get" action="/PriceComparison/ComparePrices">
-    <div>
-        <label for="searchTerm">Aramak istediğiniz ürün:</label>
-        <input type="text" id="searchTerm" name="searchTerm" required placeholder="Ürün adı girin" />
+<form method="get" action="/PriceComparison/ComparePrices" class="form">
+    <div class="form-group">
+        <label for="category" class="form-label">Kategori Seçin:</label>
+        <select id="category" name="category" class="form-select" required>
+            <option value="">--Kategori Seçin--</option>
+            <option value="phone">Cep Telefonu </option>
+            <option value="computer">Bilgisayar</option>
+            <option value="tablet">Tablet</option>
+            <option value="smartwatch">Akıllı Saat</option>
+        </select>
     </div>
-    <div>
-        <button type="submit">Ara</button>
+    <div id="searchField" class="form-group" style="display: none;">
+        <label for="searchTerm" class="form-label">Aramak istediğiniz ürün:</label>
+        <input type="text" id="searchTerm" name="searchTerm" class="form-input" required placeholder="Ürün adı girin" />
+    </div>
+    <div class="form-group">
+        <button type="submit" id="searchButton" class="form-button" style="display: none;">Ara</button>
     </div>
 </form>
+
+<script>
+    document.getElementById('category').addEventListener('change', function () {
+        const searchField = document.getElementById('searchField');
+        const searchButton = document.getElementById('searchButton');
+
+        if (this.value) {
+            searchField.style.display = 'block';
+            searchButton.style.display = 'inline-block';
+        } else {
+            searchField.style.display = 'none';
+            searchButton.style.display = 'none';
+        }
+    });
+</script>
+
+<style>
+    .form {
+        max-width: 500px;
+        margin: 0 auto;
+        font-family: Arial, sans-serif;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+    }
+
+    .form-select, .form-input {
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .form-button {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        color: #fff;
+        background-color: #007bff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .form-button:hover {
+            background-color: #0056b3;
+        }
+</style>

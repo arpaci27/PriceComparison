@@ -8,8 +8,10 @@
         {
             { "trendyol_name", "/html/body/div[1]/div[6]/div/div/div/div/div/div[2]/div[4]/div[1]/div/div[1]/div[1]/div/a[1]/div[1]/div/h3/span[2]" },
             { "trendyol_price", "/html/body/div[1]/div[6]/div/div/div/div/div/div[2]/div[4]/div[1]/div/div[1]/div[1]/div/div/div/div" },
+            {"trendyol_image","/html/body/div[1]/div[6]/div/div/div/div/div/div[2]/div[4]/div[1]/div/div[1]/div[1]/a/div/div[1]/div[1]/img" },
             { "hepsiburada_name", "/html/body/div[1]/div/div/main/div/div/div/div/div[2]/div[5]/div/div[2]/div/div/div/div/div/div/ul/li[1]/div/a/div[2]/div[2]/h3" },
-            { "hepsiburada_price", "/html/body/div[1]/div/div/main/div/div/div/div/div[2]/div[5]/div/div[2]/div/div/div/div/div/div/ul/li[1]/div/a/div[2]/div[4]" }
+            { "hepsiburada_price", "/html/body/div[1]/div/div/main/div/div/div/div/div[2]/div[5]/div/div[2]/div/div/div/div/div/div/ul/li[1]/div/a/div[2]/div[4]" },
+            { "hepsiburada_image", "/html/body/div[1]/div/div/main/div/div/div/div/div[2]/div[5]/div/div[2]/div/div/div/div/div/div/ul/li[1]/div/a/div[1]/div[1]/div[1]/div/picture/img" }
         };
 
             return xpaths;

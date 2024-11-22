@@ -4,21 +4,25 @@ using PriceComparison.Models;
 
 public class PriceComparisonController : Controller
 {
-   Context _db = new Context();
+    Context _db = new Context();
 
     public IActionResult Search()
+    {
+        return View();
+    }
+    public IActionResult UITry()
     {
         return View();
     }
     public IActionResult ComparePrices(string searchTerm)
     {
         var stores = _db.Stores.ToList();
-        var results = new List<(string site, string name, string price)>();
+        var results = new List<(string site, string name, string price, string imageUrl)>();
 
         foreach (var store in stores)
         {
             var product = PriceFetcher.GetProductDetails(store.BaseSearchUrl, searchTerm, store.Name);
-            results.Add((store.Name, product.name, product.price));
+            results.Add((store.Name, product.name, product.price, product.image));
         }
 
         // Parse prices robustly and find the lowest price
@@ -31,7 +35,6 @@ public class PriceComparisonController : Controller
 
         return View(results);
     }
-
     private decimal ParsePrice(string price)
     {
         if (string.IsNullOrWhiteSpace(price))
