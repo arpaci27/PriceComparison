@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Ürün Arama";
+}
+
+<h2>Ürün Arama</h2>
+
+<form method="get" action="/PriceComparison/ComparePrices">
+    <div>
+        <label for="searchTerm">Aramak istediğiniz ürün:</label>
+        <input type="text" id="searchTerm" name="searchTerm" required placeholder="Ürün adı girin" />
+    </div>
+    <div>
+        <button type="submit">Ara</button>
+    </div>
+</form>

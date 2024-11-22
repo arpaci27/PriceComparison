@@ -1,0 +1,33 @@
+﻿@model List<(string site, string name, string price)>
+
+<h2>Arama Sonuçları</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Site</th>
+            <th>Ürün Adı</th>
+            <th>Fiyat</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var result in Model)
+        {
+            <tr>
+                <td>@result.site</td>
+                <td>@result.name</td>
+                <td>@result.price</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>En Uygun Fiyat</h3>
+@if (ViewBag.LowestPrice is not null)
+{
+    <p>Lowest Price: @ViewBag.LowestPrice.Item1 - @ViewBag.LowestPrice.Item2 - @ViewBag.LowestPrice.Item3</p>
+}
+else
+{
+    <p>No prices available.</p>
+}
+
