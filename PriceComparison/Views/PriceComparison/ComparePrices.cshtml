@@ -1,11 +1,108 @@
 ﻿@model List<(string site, string name, string price, string imageUrl)>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Price Comparison</title>
+    <style>
+        /* Genel stil */
+        body {
+            background-color: #f8f9fa;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            color: #212529;
+        }
 
-<h2>Arama Sonuçları</h2>
-<br />
-<h3>En Uygun Fiyat</h3>
-@if (ViewBag.LowestPrice is not null)
-{
-    <table class="table table-bordered">
+        /* Navbar stili */
+        h2 {
+            text-align: center;
+            margin-top: 1rem;
+            color: #343a40;
+        }
+
+        /* Tablo stili */
+        .table {
+            width: 90%;
+            margin: 2rem auto;
+            border-collapse: collapse;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table th, .table td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+
+        .table th {
+            background-color: #343a40;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .table tbody tr:nth-child(odd) {
+            background-color: #f8f9fa;
+        }
+
+        .table img {
+            width: 100px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Responsive tasarım */
+        @@media (max-width: 600px) {
+            .table {
+                width: 100%;
+            }
+
+            .table img {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <h2>Product Price Comparison</h2>
+
+    <!-- En Uygun Fiyat -->
+    <h3 style="text-align:center; margin-top: 1.5rem;">En Uygun Fiyat</h3>
+    @if (ViewBag.LowestPrice is not null)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Site</th>
+                    <th>Ürün Adı</th>
+                    <th>Fiyat</th>
+                    <th>Resim</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@ViewBag.LowestPrice.Item1</td>
+                    <td>@ViewBag.LowestPrice.Item2</td>
+                    <td>@ViewBag.LowestPrice.Item3</td>
+                    <td>
+                        <img src="@ViewBag.LowestPrice.Item4" alt="En Uygun Fiyat Resmi" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p style="text-align: center; color: #6c757d;">No prices available.</p>
+    }
+
+    <!-- Genel Tablo -->
+    <table class="table">
         <thead>
             <tr>
                 <th>Site</th>
@@ -15,42 +112,18 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>@ViewBag.LowestPrice.Item1</td>
-                <td>@ViewBag.LowestPrice.Item2</td>
-                <td>@ViewBag.LowestPrice.Item3</td>
-               @*  <td> *@
-                    @* <img src="@ViewBag.LowestPrice.imageUrl" alt="En Uygun Fiyat Resmi" style="width:100px;height:auto;" /> *@
-                @* </td> *@
-            </tr>
+            @foreach (var result in Model)
+            {
+                <tr>
+                    <td>@result.site</td>
+                    <td>@result.name</td>
+                    <td>@result.price</td>
+                    <td>
+                        <img src="@result.imageUrl" alt="Ürün Resmi" />
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
-}
-else
-{
-    <p>No prices available.</p>
-}
-
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Site</th>
-            <th>Ürün Adı</th>
-            <th>Fiyat</th>
-            <th>Resim</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var result in Model)
-        {
-            <tr>
-                <td>@result.site</td>
-                <td>@result.name</td>
-                <td>@result.price</td>
-                <td>
-                    <img src="@result.imageUrl" alt="Ürün Resmi" style="width:100px;height:auto;" />
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+</body>
+</html>
