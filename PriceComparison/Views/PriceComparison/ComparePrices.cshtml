@@ -32,28 +32,28 @@
             overflow: hidden;
         }
 
-        .table th, .table td {
-            padding: 0.75rem;
-            text-align: left;
-            border: 1px solid #dee2e6;
-        }
+            .table th, .table td {
+                padding: 0.75rem;
+                text-align: left;
+                border: 1px solid #dee2e6;
+            }
 
-        .table th {
-            background-color: #343a40;
-            color: #ffffff;
-            font-weight: bold;
-        }
+            .table th {
+                background-color: #343a40;
+                color: #ffffff;
+                font-weight: bold;
+            }
 
-        .table tbody tr:nth-child(odd) {
-            background-color: #f8f9fa;
-        }
+            .table tbody tr:nth-child(odd) {
+                background-color: #f8f9fa;
+            }
 
-        .table img {
-            width: 100px;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-        }
+            .table img {
+                width: 100px;
+                height: auto;
+                display: block;
+                margin: 0 auto;
+            }
 
         /* Responsive tasarım */
         @@media (max-width: 600px) {
@@ -61,37 +61,31 @@
                 width: 100%;
             }
 
-            .table img {
-                width: 80px;
-            }
+                .table img {
+                    width: 80px;
+                }
         }
     </style>
 </head>
 <body>
     <!-- Navbar -->
-    <h2>Product Price Comparison</h2>
 
     <!-- En Uygun Fiyat -->
-    <h3 style="text-align:center; margin-top: 1.5rem;">En Uygun Fiyat</h3>
     @if (ViewBag.LowestPrice is not null)
     {
         <table class="table">
-            <thead>
-                <tr>
-                    <th>Site</th>
-                    <th>Ürün Adı</th>
-                    <th>Fiyat</th>
-                    <th>Resim</th>
-                </tr>
-            </thead>
+            
             <tbody>
                 <tr>
-                    <td>@ViewBag.LowestPrice.Item1</td>
-                    <td>@ViewBag.LowestPrice.Item2</td>
-                    <td>@ViewBag.LowestPrice.Item3</td>
                     <td>
                         <img src="@ViewBag.LowestPrice.Item4" alt="En Uygun Fiyat Resmi" />
                     </td>
+                
+
+                    <td>@ViewBag.LowestPrice.Item2</td>
+                    <td>@ViewBag.LowestPrice.Item3</td>
+                    <td><img src="/images/@($"{ViewBag.LowestPrice.Item1}.png")" /></td>
+                   
                 </tr>
             </tbody>
         </table>
@@ -103,24 +97,18 @@
 
     <!-- Genel Tablo -->
     <table class="table">
-        <thead>
-            <tr>
-                <th>Site</th>
-                <th>Ürün Adı</th>
-                <th>Fiyat</th>
-                <th>Resim</th>
-            </tr>
-        </thead>
+       
         <tbody>
             @foreach (var result in Model)
             {
                 <tr>
-                    <td>@result.site</td>
-                    <td>@result.name</td>
-                    <td>@result.price</td>
                     <td>
                         <img src="@result.imageUrl" alt="Ürün Resmi" />
                     </td>
+                    
+                    <td>@result.name</td>
+                    <td>@result.price</td>
+                    <td><img src="/images/@($"{result.site}.png")" /></td>
                 </tr>
             }
         </tbody>

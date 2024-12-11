@@ -5,81 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Price Comparison</title>
     <style>
-        /* Genel stil */
+        /* Genel Stiller */
         body {
-            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
             margin: 0;
-            font-family: 'Roboto', sans-serif;
-            color: #212529;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
         }
 
-        /* Navbar stili */
         h2 {
             text-align: center;
-            margin-top: 1rem;
-            color: #343a40;
+            margin-top: 1.5rem;
+            font-size: 1.8rem;
         }
 
-        /* Form stili */
-        .form {
-            max-width: 500px;
-            background: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
+        .form-container {
+            max-width: 400px;
             margin: 2rem auto;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
-        .form-label {
-            display: block;
+        label {
+            font-weight: 600;
             margin-bottom: 0.5rem;
-            font-weight: bold;
-            color: #495057;
+            display: block;
         }
 
-        .form-select, .form-input {
+        select, input {
             width: 100%;
-            padding: 0.75rem;
-            font-size: 1rem;
-            border: 1px solid #ced4da;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            border: 1px solid #ccc;
             border-radius: 5px;
-            background-color: #f8f9fa;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: #f9f9f9;
         }
 
-        .form-select:focus, .form-input:focus {
-            border-color: #80bdff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        select:focus, input:focus {
+            border-color: #007bff;
             outline: none;
         }
 
-        .form-button {
+        button {
             width: 100%;
-            padding: 0.75rem;
-            font-size: 1rem;
-            color: #fff;
-            background-color: #28a745;
+            padding: 0.5rem;
+            font-size: 0.9rem;
             border: none;
             border-radius: 5px;
+            background: #007bff;
+            color: #fff;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background 0.3s;
         }
 
-        .form-button:hover {
-            background-color: #218838;
+        button:hover {
+            background: #0056b3;
         }
 
-        /* Spinner */
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #007bff;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
             animation: spin 1s linear infinite;
             margin: 0 auto;
         }
@@ -88,90 +92,157 @@
             0% {
                 transform: rotate(0deg);
             }
-
             100% {
                 transform: rotate(360deg);
             }
         }
 
-        #loading {
-            display: none;
-            text-align: center;
-            margin-bottom: 20px;
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 sütun */
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
 
-        #loading p {
-            margin-top: 10px;
-            font-size: 1rem;
-            color: #6c757d;
+        .full-width {
+            grid-column: span 2; /* Tüm genişlik */
         }
 
-        /* Responsive tasarım */
         @@media (max-width: 600px) {
-            .form {
-                padding: 1.5rem;
-            }
-
-            h2 {
-                font-size: 1.5rem;
-            }
-
-            .form-button {
-                font-size: 0.9rem;
-                padding: 0.5rem;
+            .grid-container {
+                grid-template-columns: 1fr; /* Tek sütun */
             }
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <br />
     <h2>Product Price Comparison</h2>
 
-    <!-- Yükleniyor Spinner -->
-    <div id="loading">
-        <div class="spinner"></div>
-        <p>Searching...</p>
+    <div class="form-container">
+        <form method="get" action="/PriceComparison/ComparePrices" onsubmit="showLoading()">
+            <div class="form-group">
+                <label for="category">Choose a Category:</label>
+                <select id="category" name="category" required>
+                    <option value="">Select a Category</option>
+                    <option value="computer">Computer</option>
+                    <option value="tablet">Tablet</option>
+                    <option value="smartwatch">Smart Watch</option>
+                </select>
+            </div>
+            <div id="additionalFields" class="grid-container"></div>
+            <div id="searchField" class="form-group full-width" style="display: none;">
+                <label for="searchTerm">Search:</label>
+                <input type="text" id="searchTerm" name="searchTerm" placeholder="Search a product..." >
+            </div>
+            <div class="form-group">
+                <button type="submit" id="searchButton" style="display: none;">Search</button>
+            </div>
+        </form>
+
+        <div id="loading">
+            <div class="spinner"></div>
+            <p>Searching...</p>
+        </div>
     </div>
 
-    <!-- Ürün Arama Formu -->
-    <form method="get" action="/PriceComparison/ComparePrices" class="form" onsubmit="showLoading()">
-        <div class="form-group">
-            <label for="category" class="form-label">Choose a Category:</label>
-            <select id="category" name="category" class="form-select" required>
-                <option value="">Choose a Category</option>
-                <option value="phone">Phone</option>
-                <option value="computer">Computer</option>
-                <option value="tablet">Tablet</option>
-                <option value="smartwatch">Smart Watch</option>
-            </select>
-        </div>
-        <div id="searchField" class="form-group" style="display: none;">
-            <label for="searchTerm" class="form-label">Enter Product Name:</label>
-            <input type="text" id="searchTerm" name="searchTerm" class="form-input" required placeholder="Enter a Product Name" />
-        </div>
-        <div class="form-group">
-            <button type="submit" id="searchButton" class="form-button" style="display: none;">Search</button>
-        </div>
-    </form>
-
     <script>
-        document.getElementById('category').addEventListener('change', function () {
-            const searchField = document.getElementById('searchField');
-            const searchButton = document.getElementById('searchButton');
+        const categorySelect = document.getElementById('category');
+        const additionalFieldsContainer = document.getElementById('additionalFields');
+        const searchTermInput = document.getElementById('searchTerm');
+        const searchField = document.getElementById('searchField');
+        const searchButton = document.getElementById('searchButton');
 
-            if (this.value) {
+        categorySelect.addEventListener('change', function () {
+            const selectedValue = this.value;
+            additionalFieldsContainer.innerHTML = '';
+            searchTermInput.value = '';
+
+            if (selectedValue === "computer") {
+                const fields = [
+                    { id: 'ram', label: 'RAM', type: 'dropdown', options: ['2GB', '4GB', '8GB', '16GB', '32GB', '64GB'] },
+                    { id: 'screenSize', label: 'Screen Size', type: 'text', suffix: `''` },
+                    { id: 'brand', label: 'Brand', type: 'dropdown', options: ['LENOVO', 'ASUS', 'Apple', 'CASPER', 'HP', 'Huawei', 'MONSTER', 'Samsung', 'MSI', 'ACER', 'Dell'] },
+                    {
+                        id: 'processor', label: 'Processor', type: 'dropdown', options: [
+                            'AMD Ryzen 3',
+                            'AMD Ryzen 5',
+                            'AMD Ryzen 7',
+                            'AMD Ryzen 9',
+                            'Intel Celeron',
+                            'Intel Core i3',
+                            'Intel Core i5',
+                            'Intel Core i7',
+                            'Intel Core i9',
+                            'Intel Core M',
+                            'Intel Core Ultra 5',
+                            'Intel Core Ultra 7',
+                            'Intel Pentium'
+                        ]
+                    },
+                    { id: 'gpu', label: 'Graphics Card', type: 'text' },
+                    { id: 'ssd', label: 'SSD Capacity', type: 'dropdown', options: ['128GB', '256GB', '512GB', '1TB', '2TB'] },
+
+                ];
+
+                fields.forEach(field => {
+                    const div = document.createElement('div');
+                    div.classList.add('form-group');
+                    if (field.type === 'dropdown') {
+                        div.innerHTML = `
+                                <label for="${field.id}">${field.label}:</label>
+                                <select id="${field.id}" name="${field.id}" onchange="updateSearchTerm()">
+                                    ${field.options.map(option => `<option value="${option}">${option}</option>`).join('')}
+                                </select>
+                            `;
+                    } else {
+                        div.innerHTML = `
+                                <label for="${field.id}">${field.label}:</label>
+                                <input type="text" id="${field.id}" name="${field.id}" placeholder="Enter ${field.label}" oninput="updateFieldSuffix('${field.id}', '${field.suffix || ''}')">
+                            `;
+                    }
+                    additionalFieldsContainer.appendChild(div);
+                });
+
                 searchField.style.display = 'block';
                 searchButton.style.display = 'block';
             } else {
-                searchField.style.display = 'none';
-                searchButton.style.display = 'none';
+                searchField.style.display = 'block';
+                searchButton.style.display = 'block';
             }
         });
+
+        function updateFieldSuffix(id, suffix) {
+            const input = document.getElementById(id);
+            const value = input.value.trim();
+            if (value && !value.endsWith(suffix)) {
+                input.value = value.replace(suffix, '') + suffix; // Sadece bir kez ekler
+            }
+            updateSearchTerm();
+        }
+
+        function updateSearchTerm() {
+            const inputs = additionalFieldsContainer.querySelectorAll('input, select');
+            let brandValue = '';
+            const otherValues = [];
+
+            inputs.forEach(input => {
+                const value = input.value.trim();
+                if (input.id === 'brand' && value !== '') {
+                    brandValue = value; // Brand en başa yazılacak.
+                } else if (value !== '') {
+                    otherValues.push(value); // Diğer dolu değerler sıraya alınacak.
+                }
+            });
+
+            // Brand en başa, diğerleri sırayla birleşecek.
+            searchTermInput.value = [brandValue, ...otherValues].filter(val => val !== '').join(' ');
+        }
 
         function showLoading() {
             document.getElementById('loading').style.display = 'block';
         }
     </script>
+
+
 </body>
 </html>

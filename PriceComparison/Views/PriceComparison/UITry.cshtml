@@ -3,90 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xiaomi Redmi Note 13 Pro</title>
+    <title>Product Price Comparison</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            background-color: #f8f9fa;
+            font-family: 'Roboto', sans-serif;
         }
 
-        .product-container {
-            max-width: 800px;
-            margin: auto;
-            border: 1px solid #ddd;
-            padding: 20px;
+        .product-card img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        .product-card {
+            border: 1px solid #dee2e6;
             border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .product-image {
-            text-align: center;
-        }
-
-            .product-image img {
-                max-width: 100%;
-                height: auto;
-                border-radius: 8px;
+            .product-card h6 {
+                font-size: 1rem;
             }
 
-        .product-details {
-            margin-top: 20px;
-        }
-
-        .product-title {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .rating {
-            margin: 10px 0;
-            color: #f39c12;
-        }
-
-        .options {
-            margin: 10px 0;
-        }
-
-        .price {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-
-        .store-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-            .store-link a {
-                display: inline-block;
-                padding: 10px 20px;
-                background-color: #007bff;
-                color: white;
-                text-decoration: none;
-                border-radius: 5px;
+            .product-card .btn-primary {
+                font-size: 0.9rem;
             }
 
-                .store-link a:hover {
-                    background-color: #0056b3;
-                }
+        .section-title {
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 2rem 0;
+            color: #343a40;
+        }
     </style>
 </head>
 <body>
+    <div class="container py-5">
+        <h1 class="text-center text-dark mb-4">Product Price Comparison</h1>
 
-    <div class="card mb-3" style="max-width: 540px;">
-    <div class="row g-0">
-        <div class="col-md-4">
-            <img src="..." class="img-fluid rounded-start" alt="...">
-        </div>
-        <div class="col-md-8">
-            <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
+        <!-- En Uygun Fiyat -->
+        <h2 class="section-title">En Uygun Fiyat</h2>
+        @if (ViewBag.LowestPrice != null)
+        {
+            <div class="row justify-content-center mb-5">
+                <div class="col-md-4">
+                    <div class="card product-card">
+                        <img src="@ViewBag.LowestPrice.Item4" alt="En Uygun Fiyat Resmi" class="card-img-top">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">x</h6>
+                            <p class="text-muted mb-2">x</p>
+                            <h5 class="text-primary">x</h5>
+                        </div>
+                    </div>
+                </div>
             </div>
+        }
+        else
+        {
+            <p class="text-center text-muted">No prices available.</p>
+        }
+
+        <!-- Genel Tablo -->
+        <h2 class="section-title">Tüm Ürünler</h2>
+        <div class="row">
+           
+                <div class="col-md-3 mb-4">
+                    <div class="card product-card">
+                        <img src="x" alt="Ürün Resmi" class="card-img-top">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">x</h6>
+                            <p class="text-muted mb-2">x</p>
+                            <h5 class="text-primary">x</h5>
+                            <a href="#" class="btn btn-primary btn-sm">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            
         </div>
     </div>
-    </div>
 
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
