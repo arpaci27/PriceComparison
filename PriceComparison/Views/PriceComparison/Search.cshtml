@@ -124,9 +124,10 @@
                 <label for="category">Choose a Category:</label>
                 <select id="category" name="category" required>
                     <option value="">Select a Category</option>
-                    <option value="computer">Computer</option>
-                    <option value="tablet">Tablet</option>
-                    <option value="smartwatch">Smart Watch</option>
+                    <option value="cep-telefonlari">Phone</option>
+                    <option value="dizustu-bilgisayar">Computer</option>
+                    <option value="tablet-pc">Tablet</option>
+                    <option value="akilli-saat">Smart Watch</option>
                 </select>
             </div>
             <div id="additionalFields" class="grid-container"></div>
@@ -157,7 +158,7 @@
             additionalFieldsContainer.innerHTML = '';
             searchTermInput.value = '';
 
-            if (selectedValue === "computer") {
+            if (selectedValue === "dizustu-bilgisayar") {
                 const fields = [
                     { id: 'ram', label: 'RAM', type: 'dropdown', options: ['2GB', '4GB', '8GB', '16GB', '32GB', '64GB'] },
                     { id: 'screenSize', label: 'Screen Size', type: 'text', suffix: `''` },
@@ -236,6 +237,7 @@
 
             // Brand en başa, diğerleri sırayla birleşecek.
             searchTermInput.value = [brandValue, ...otherValues].filter(val => val !== '').join(' ');
+
         }
 
         function showLoading() {

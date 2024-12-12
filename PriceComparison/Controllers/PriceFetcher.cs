@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
-using OpenQA.Selenium;
-using PriceComparison.Models;
+using System;
+using System.Collections.Generic;
 
-public class PriceFetcher : Controller
+public class PriceFetcher
 {
     private static IWebDriver _driver;
     private static WebDriverWait _wait;
@@ -24,6 +24,7 @@ public class PriceFetcher : Controller
         options.AddArgument("--blink-settings=imagesEnabled=false");
         options.AddUserProfilePreference("profile.managed_default_content_settings.stylesheets", 2);
         options.AddArgument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+
         _driver = new ChromeDriver(options);
         _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(1))
         {
@@ -31,59 +32,106 @@ public class PriceFetcher : Controller
         };
     }
 
-    public static (string name, string price, string image) GetProductDetails(string baseUrl, string searchTerm, string siteName)
+    public static List<(string name, string price, string image, string link, string shopImage)> FetchTopProducts(string category, string productName)
     {
+        string baseUrl = "https://www.cimri.com/{0}?q={1}";
+        string searchUrl = string.Format(baseUrl, category, productName);
+
         try
         {
-            string searchUrl = string.Format(baseUrl, searchTerm);
+            Console.WriteLine(searchUrl);
             _driver.Navigate().GoToUrl(searchUrl);
 
-            string productName, productPrice, productImage;
+            // İlk 10 ürünü listelemek için XPath seçiciler
+            var products = new List<(string name, string price, string image, string link, string shopImage)>();
 
-            if (siteName == "hepsiburada" || siteName == "mediamarkt")
+            for (int i = 1; i <= 10; i++)
             {
-                var xpaths = XPaths.GetXPaths(siteName, null);
-                productName = _wait.Until(drv => drv.FindElement(By.XPath(xpaths[$"{siteName}_name"]))).Text;
-                productPrice = _wait.Until(drv => drv.FindElement(By.XPath(xpaths[$"{siteName}_price"]))).Text;
-                productImage = _wait.Until(drv => drv.FindElement(By.XPath(xpaths[$"{siteName}_image"]))).GetAttribute("src");
-            }
-            else
-            {
-                var selectors = Selectors.GetSelectors(siteName, null);
-                productName = _wait.Until(drv => drv.FindElement(By.CssSelector(selectors[$"{siteName}_name"]))).Text;
-                productPrice = _wait.Until(drv => drv.FindElement(By.CssSelector(selectors[$"{siteName}_price"]))).Text;
-                productImage = _wait.Until(drv => drv.FindElement(By.CssSelector(selectors[$"{siteName}_image"]))).GetAttribute("src");
+                try
+                {
+                    string nameXPath = $"/html/body/div[1]/main/div[1]/div[4]/div[2]/div[2]/div/div[1]/div/article[{i}]/a/div[2]/h3";
+                    string imageXPath = $"/html/body/div[1]/main/div[1]/div[4]/div[2]/div[2]/div/div[1]/div/article[{i}]/a/div[1]/img";
+                    string priceXPath = $"/html/body/div[1]/main/div[1]/div[4]/div[2]/div[2]/div/div[1]/div/article[{i}]/div/div/div[1]/div/p";
+                    string linkXPath = $"/html/body/div[1]/main/div[1]/div[4]/div[2]/div[2]/div/div[1]/div/article[{i}]/a";
+                    string shopImageXPath = $"/html/body/div[1]/main/div[1]/div[4]/div[2]/div[2]/div/div[1]/div/article[{i}]/div/div/div[1]/div/div/img";
+
+                    string name = _wait.Until(drv => drv.FindElement(By.XPath(nameXPath))).Text;
+                    string image = _wait.Until(drv => drv.FindElement(By.XPath(imageXPath))).GetAttribute("src");
+                    string price = _wait.Until(drv => drv.FindElement(By.XPath(priceXPath))).Text;
+                    string link = _wait.Until(drv => drv.FindElement(By.XPath(linkXPath))).GetAttribute("href");
+                    string shopImage = _wait.Until(drv => drv.FindElement(By.XPath(shopImageXPath))).GetAttribute("src");
+
+                    products.Add((name, price, image, link, shopImage));
+                }
+                catch (NoSuchElementException ex)
+                {
+                    Console.WriteLine($"Element not found: {ex.Message}");
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                    break;
+                }
             }
 
-            return (productName, productPrice, productImage);
-        }
-        catch (NoSuchElementException ex)
-        {
-            Console.WriteLine($"Element bulunamadı: {ex.Message}");
-            return ("", "", "");
-        }
-        catch (WebDriverTimeoutException ex)
-        {
-            Console.WriteLine($"Timeout: {ex.Message}");
-            return ("", "", "");
+            return products;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Hata: {ex.Message}");
-            return ("", "", "");
+            Console.WriteLine($"Page load error: {ex.Message}");
+            return new List<(string name, string price, string image, string link, string shopImage)>();
+        }
+    }
+    public static List<(string name, string price, string shopImage, string productImage)> FetchProductDetailsFromLink(string productLink)
+    {
+        try
+        {
+            _driver.Navigate().GoToUrl(productLink);
+            _wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+
+            var productDetails = new List<(string name, string price, string shopImage, string productImage)>();
+
+            for (int i = 1; ; i++) // Belirtilen XPath'teki tüm ürünleri bulana kadar devam eder
+            {
+                try
+                {
+                    string shopImageXPath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{i}]/div[2]/div/div[1]/div[1]/img";
+                    string nameXPath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{i}]/div[2]/div/div[1]/div[2]/div";
+                    string priceXPath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{i}]/div[2]/div/div[2]/div[1]/div";
+                    string productImageXPath = $"/html/body/div[2]/main/div[1]/section[1]/div/div[1]/div[1]/div[1]/div[1]/img";
+                    string shopImage = _wait.Until(drv => drv.FindElement(By.XPath(shopImageXPath))).GetAttribute("src");
+                    string name = _wait.Until(drv => drv.FindElement(By.XPath(nameXPath))).Text;
+                    string price = _wait.Until(drv => drv.FindElement(By.XPath(priceXPath))).Text;
+                    string productImage = _wait.Until(drv => drv.FindElement(By.XPath(productImageXPath))).GetAttribute("src");
+                    productDetails.Add((name, price, shopImage, productImage));
+                }
+                catch (NoSuchElementException)
+                {
+                    break; // Eleman bulunamazsa döngüyü kır
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Hata oluştu: {ex.Message}");
+                    break;
+                }
+            }
+
+            return productDetails;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Sayfa yükleme hatası: {ex.Message}");
+            return new List<(string name, string price, string shopImage, string productImage)>();
         }
     }
 
-    public static List<(string name, string price, string image)> GetMultipleProductDetails(List<(string baseUrl, string searchTerm, string siteName)> queries)
+    public static void CloseDriver()
     {
-        var results = new List<(string name, string price, string image)>();
-
-        foreach (var query in queries)
+        if (_driver != null)
         {
-            var result = GetProductDetails(query.baseUrl, query.searchTerm, query.siteName);
-            results.Add(result);
+            _driver.Quit();
+            _driver.Dispose();
         }
-
-        return results;
     }
 }

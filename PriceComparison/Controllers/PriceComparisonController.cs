@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PriceComparison.Controllers;
 using PriceComparison.Models;
+using System.Linq;
+using System.Collections.Generic;
 
 public class PriceComparisonController : Controller
 {
@@ -10,31 +11,21 @@ public class PriceComparisonController : Controller
     {
         return View();
     }
+
     public IActionResult UITry()
     {
         return View();
     }
-    public IActionResult ComparePrices(string searchTerm)
+
+    public IActionResult ComparePrices(string category, string searchTerm)
     {
-        var stores = _db.Stores.ToList();
-        var results = new List<(string site, string name, string price, string imageUrl)>();
+        // Fetch top products using the updated PriceFetcher method
+        var topProducts = PriceFetcher.FetchTopProducts(category, searchTerm);
 
-        foreach (var store in stores)
-        {
-            var product = PriceFetcher.GetProductDetails(store.BaseSearchUrl, searchTerm, store.Name);
-            results.Add((store.Name, product.name, product.price, product.image));
-        }
-
-        // Parse prices robustly and find the lowest price
-        var lowestPrice = results
-            .Where(r => !string.IsNullOrEmpty(r.price)) // Only valid prices
-            .OrderBy(r => ParsePrice(r.price)) // Convert prices to decimal and sort
-            .FirstOrDefault();
-
-        ViewBag.LowestPrice = lowestPrice;
-
-        return View(results);
+        // Passing the product list to the view
+        return View(topProducts);
     }
+
     private decimal ParsePrice(string price)
     {
         if (string.IsNullOrWhiteSpace(price))
@@ -60,6 +51,24 @@ public class PriceComparisonController : Controller
             // Log exception and return a high value for invalid prices
             return decimal.MaxValue;
         }
+    }
+    public IActionResult ProductDetails(string productLink)
+    {
+        if (string.IsNullOrEmpty(productLink))
+        {
+            ViewBag.ErrorMessage = "Ürün bağlantısı eksik.";
+            return View("Error");
+        }
+
+        var productDetails = PriceFetcher.FetchProductDetailsFromLink(productLink);
+
+        if (productDetails == null || !productDetails.Any())
+        {
+            ViewBag.ErrorMessage = "Ürün detayları bulunamadı.";
+            return View("Error");
+        }
+
+        return View(productDetails);
     }
 
 }
