@@ -83,48 +83,48 @@ public class PriceFetcher
             return new List<(string name, string price, string image, string link, string shopImage)>();
         }
     }
-    public static List<(string name, string price, string shopImage, string productImage)> FetchProductDetailsFromLink(string productLink)
-    {
-        try
+        public static List<(string name, string price, string shopImage, string productImage)> FetchProductDetailsFromLink(string productLink)
         {
-            _driver.Navigate().GoToUrl(productLink);
-            _wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-
-            var productDetails = new List<(string name, string price, string shopImage, string productImage)>();
-
-            for (int i = 1; ; i++) // Belirtilen XPath'teki tüm ürünleri bulana kadar devam eder
+            try
             {
-                try
-                {
-                    string shopImageXPath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{i}]/div[2]/div/div[1]/div[1]/img";
-                    string nameXPath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{i}]/div[2]/div/div[1]/div[2]/div";
-                    string priceXPath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{i}]/div[2]/div/div[2]/div[1]/div";
-                    string productImageXPath = $"/html/body/div[2]/main/div[1]/section[1]/div/div[1]/div[1]/div[1]/div[1]/img";
-                    string shopImage = _wait.Until(drv => drv.FindElement(By.XPath(shopImageXPath))).GetAttribute("src");
-                    string name = _wait.Until(drv => drv.FindElement(By.XPath(nameXPath))).Text;
-                    string price = _wait.Until(drv => drv.FindElement(By.XPath(priceXPath))).Text;
-                    string productImage = _wait.Until(drv => drv.FindElement(By.XPath(productImageXPath))).GetAttribute("src");
-                    productDetails.Add((name, price, shopImage, productImage));
-                }
-                catch (NoSuchElementException)
-                {
-                    break; // Eleman bulunamazsa döngüyü kır
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Hata oluştu: {ex.Message}");
-                    break;
-                }
-            }
+                _driver.Navigate().GoToUrl(productLink);
+                _wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
 
-            return productDetails;
+                var productDetails = new List<(string name, string price, string shopImage, string productImage)>();
+
+                for (int i = 1; ; i++) // Belirtilen XPath'teki tüm ürünleri bulana kadar devam eder
+                {
+                    try
+                    {
+                        string shopImageXPath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{i}]/div[2]/div/div[1]/div[1]/img";
+                        string nameXPath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{i}]/div[2]/div/div[1]/div[2]/div";
+                        string priceXPath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{i}]/div[2]/div/div[2]/div[1]/div";
+                        string productImageXPath = $"/html/body/div[2]/main/div[1]/section[1]/div/div[1]/div[1]/div[1]/div[1]/img";
+                        string shopImage = _wait.Until(drv => drv.FindElement(By.XPath(shopImageXPath))).GetAttribute("src");
+                        string name = _wait.Until(drv => drv.FindElement(By.XPath(nameXPath))).Text;
+                        string price = _wait.Until(drv => drv.FindElement(By.XPath(priceXPath))).Text;
+                        string productImage = _wait.Until(drv => drv.FindElement(By.XPath(productImageXPath))).GetAttribute("src");
+                        productDetails.Add((name, price, shopImage, productImage));
+                    }
+                    catch (NoSuchElementException)
+                    {
+                        break; // Eleman bulunamazsa döngüyü kır
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Hata oluştu: {ex.Message}");
+                        break;
+                    }
+                }
+
+                return productDetails;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Sayfa yükleme hatası: {ex.Message}");
+                return new List<(string name, string price, string shopImage, string productImage)>();
+            }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Sayfa yükleme hatası: {ex.Message}");
-            return new List<(string name, string price, string shopImage, string productImage)>();
-        }
-    }
 
     public static void CloseDriver()
     {

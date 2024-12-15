@@ -1,97 +1,118 @@
-﻿<!DOCTYPE html>
+﻿@{
+    Layout = "_Layout";
+}
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Price Comparison</title>
     <style>
-        /* Genel Stiller */
+        /* Color Palette */
+        :root {
+            --primary-color: #007bff; /* Blue */
+            --secondary-color: #f9f9f9; /* Light Gray */
+            --accent-color: #ff5722; /* Orange Accent */
+            --background-color: #f4f4f9; /* Subtle Background */
+            --text-color: #333; /* Dark Text */
+            --text-light: #555; /* Lighter Text */
+            --border-color: #ccc; /* Neutral Borders */
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --hover-primary: #0056b3;
+            --hover-accent: #e64a19;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
-            color: #333;
+            background-color: var(--background-color);
+            color: var(--text-color);
             line-height: 1.6;
         }
 
         h2 {
             text-align: center;
-            margin-top: 1.5rem;
-            font-size: 1.8rem;
+            margin: 2rem 0;
+            font-size: 2rem;
+            color: var(--primary-color);
         }
 
         .form-container {
-            max-width: 400px;
+            max-width: 500px;
             margin: 2rem auto;
-            padding: 1.5rem;
-            background: #fff;
+            padding: 2rem;
+            background: var(--secondary-color);
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px var(--shadow-color);
             display: flex;
             flex-direction: column;
+            gap: 1.5rem;
         }
 
         .form-group {
-            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
         label {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            display: block;
+            font-weight: bold;
+            color: var(--text-light);
         }
 
         select, input {
             width: 100%;
-            padding: 0.5rem;
-            font-size: 0.9rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f9f9f9;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--secondary-color);
+            transition: border-color 0.3s;
         }
 
         select:focus, input:focus {
-            border-color: #007bff;
+            border-color: var(--primary-color);
             outline: none;
         }
 
         button {
             width: 100%;
-            padding: 0.5rem;
-            font-size: 0.9rem;
+            padding: 0.75rem;
+            font-size: 1rem;
             border: none;
-            border-radius: 5px;
-            background: #007bff;
+            border-radius: 8px;
+            background: var(--primary-color);
             color: #fff;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background-color 0.3s;
         }
 
         button:hover {
-            background: #0056b3;
+            background: var(--hover-primary);
         }
 
         #loading {
             display: none;
             text-align: center;
-            margin-top: 1rem;
         }
 
         .spinner {
             width: 30px;
             height: 30px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #007bff;
+            border: 3px solid var(--secondary-color);
+            border-top: 3px solid var(--primary-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto;
+            margin: 0 auto 1rem;
         }
 
         @@keyframes spin {
             0% {
                 transform: rotate(0deg);
             }
+
             100% {
                 transform: rotate(360deg);
             }
@@ -99,27 +120,30 @@
 
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 sütun */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
-            margin-bottom: 1rem;
         }
 
-        .full-width {
-            grid-column: span 2; /* Tüm genişlik */
+        /* Hover Accent for Fields */
+        select:hover, input:hover {
+            border-color: var(--accent-color);
         }
 
+        /* Responsive Design */
         @@media (max-width: 600px) {
             .grid-container {
-                grid-template-columns: 1fr; /* Tek sütun */
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
+
 <body>
     <h2>Product Price Comparison</h2>
 
     <div class="form-container">
         <form method="get" action="/PriceComparison/ComparePrices" onsubmit="showLoading()">
+            <!-- Category Dropdown -->
             <div class="form-group">
                 <label for="category">Choose a Category:</label>
                 <select id="category" name="category" required>
@@ -130,16 +154,23 @@
                     <option value="akilli-saat">Smart Watch</option>
                 </select>
             </div>
+
+            <!-- Dynamic Fields -->
             <div id="additionalFields" class="grid-container"></div>
-            <div id="searchField" class="form-group full-width" style="display: none;">
+
+            <!-- Search Field -->
+            <br />
+            <div id="searchField" class="form-group" style="display: none;">
                 <label for="searchTerm">Search:</label>
-                <input type="text" id="searchTerm" name="searchTerm" placeholder="Search a product..." >
+                <input type="text" id="searchTerm" name="searchTerm" placeholder="Search a product...">
             </div>
-            <div class="form-group">
-                <button type="submit" id="searchButton" style="display: none;">Search</button>
-            </div>
+            <br />
+
+            <!-- Submit Button -->
+            <button type="submit" id="searchButton" style="display: none;">Search</button>
         </form>
 
+        <!-- Loading Spinner -->
         <div id="loading">
             <div class="spinner"></div>
             <p>Searching...</p>
@@ -153,8 +184,8 @@
         const searchField = document.getElementById('searchField');
         const searchButton = document.getElementById('searchButton');
 
-        categorySelect.addEventListener('change', function () {
-            const selectedValue = this.value;
+        categorySelect.addEventListener('change', () => {
+            const selectedValue = categorySelect.value;
             additionalFieldsContainer.innerHTML = '';
             searchTermInput.value = '';
 
@@ -163,44 +194,29 @@
                     { id: 'ram', label: 'RAM', type: 'dropdown', options: ['2GB', '4GB', '8GB', '16GB', '32GB', '64GB'] },
                     { id: 'screenSize', label: 'Screen Size', type: 'text', suffix: `''` },
                     { id: 'brand', label: 'Brand', type: 'dropdown', options: ['LENOVO', 'ASUS', 'Apple', 'CASPER', 'HP', 'Huawei', 'MONSTER', 'Samsung', 'MSI', 'ACER', 'Dell'] },
-                    {
-                        id: 'processor', label: 'Processor', type: 'dropdown', options: [
-                            'AMD Ryzen 3',
-                            'AMD Ryzen 5',
-                            'AMD Ryzen 7',
-                            'AMD Ryzen 9',
-                            'Intel Celeron',
-                            'Intel Core i3',
-                            'Intel Core i5',
-                            'Intel Core i7',
-                            'Intel Core i9',
-                            'Intel Core M',
-                            'Intel Core Ultra 5',
-                            'Intel Core Ultra 7',
-                            'Intel Pentium'
-                        ]
-                    },
+                    { id: 'processor', label: 'Processor', type: 'dropdown', options: ['AMD Ryzen 3', 'Intel Core i7'] },
                     { id: 'gpu', label: 'Graphics Card', type: 'text' },
                     { id: 'ssd', label: 'SSD Capacity', type: 'dropdown', options: ['128GB', '256GB', '512GB', '1TB', '2TB'] },
-
                 ];
 
                 fields.forEach(field => {
                     const div = document.createElement('div');
                     div.classList.add('form-group');
+
                     if (field.type === 'dropdown') {
                         div.innerHTML = `
-                                <label for="${field.id}">${field.label}:</label>
-                                <select id="${field.id}" name="${field.id}" onchange="updateSearchTerm()">
-                                    ${field.options.map(option => `<option value="${option}">${option}</option>`).join('')}
-                                </select>
-                            `;
+                            <label for="${field.id}">${field.label}:</label>
+                            <select id="${field.id}" name="${field.id}" onchange="updateSearchTerm()">
+                                ${field.options.map(option => `<option value="${option}">${option}</option>`).join('')}
+                            </select>
+                        `;
                     } else {
                         div.innerHTML = `
-                                <label for="${field.id}">${field.label}:</label>
-                                <input type="text" id="${field.id}" name="${field.id}" placeholder="Enter ${field.label}" oninput="updateFieldSuffix('${field.id}', '${field.suffix || ''}')">
-                            `;
+                            <label for="${field.id}">${field.label}:</label>
+                            <input type="text" id="${field.id}" name="${field.id}" placeholder="Enter ${field.label}" oninput="updateFieldSuffix('${field.id}', '${field.suffix || ''}')">
+                        `;
                     }
+
                     additionalFieldsContainer.appendChild(div);
                 });
 
@@ -216,35 +232,21 @@
             const input = document.getElementById(id);
             const value = input.value.trim();
             if (value && !value.endsWith(suffix)) {
-                input.value = value.replace(suffix, '') + suffix; // Sadece bir kez ekler
+                input.value = value.replace(suffix, '') + suffix;
             }
             updateSearchTerm();
         }
 
         function updateSearchTerm() {
             const inputs = additionalFieldsContainer.querySelectorAll('input, select');
-            let brandValue = '';
-            const otherValues = [];
-
-            inputs.forEach(input => {
-                const value = input.value.trim();
-                if (input.id === 'brand' && value !== '') {
-                    brandValue = value; // Brand en başa yazılacak.
-                } else if (value !== '') {
-                    otherValues.push(value); // Diğer dolu değerler sıraya alınacak.
-                }
-            });
-
-            // Brand en başa, diğerleri sırayla birleşecek.
-            searchTermInput.value = [brandValue, ...otherValues].filter(val => val !== '').join(' ');
-
+            const values = Array.from(inputs).map(input => input.value.trim()).filter(value => value !== '');
+            searchTermInput.value = values.join(' ');
         }
 
         function showLoading() {
             document.getElementById('loading').style.display = 'block';
         }
     </script>
-
-
 </body>
+
 </html>
