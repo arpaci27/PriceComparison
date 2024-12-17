@@ -16,6 +16,29 @@
             border-top: 1px solid #e9ecef;
         }
     </style>
+    <style>
+        html, body {
+            height: 100%; /* Sayfanın tamamını kapsasın */
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column; /* Elemanları dikey olarak sırala */
+        }
+
+        main {
+            flex: 1; /* Ana içerik kısmı esneyerek yer kaplasın */
+        }
+
+        footer {
+            background-color: #f8f9fa;
+            padding: 10px 0;
+            text-align: center;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -37,11 +60,11 @@
             @RenderBody()
         </main>
     </div>
-    <footer class="border-top footer text-muted">
+    @* <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2024 - Product Price Comparison
         </div>
-    </footer>
+    </footer> *@
  
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

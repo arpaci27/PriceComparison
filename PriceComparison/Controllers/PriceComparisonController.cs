@@ -71,4 +71,13 @@ public class PriceComparisonController : Controller
         return View(productDetails);
     }
 
+    [HttpGet("get-product-link")]
+    public IActionResult GetProductLink(int j)
+    {
+
+        string productLink = PriceFetcher.GetFinalProductLink(j); 
+
+        return Redirect(productLink);
+    }
+
 }

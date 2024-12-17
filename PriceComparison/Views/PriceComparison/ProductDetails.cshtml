@@ -63,11 +63,11 @@
             justify-content: center;
         }
 
-        .product-image1 img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+            .product-image1 img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
 
         .product-details {
             display: flex;
@@ -101,10 +101,10 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .sub-product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
-        }
+            .sub-product-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+            }
 
         .product-image {
             width: 100px;
@@ -117,11 +117,11 @@
             justify-content: center;
         }
 
-        .product-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
+            .product-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
 
         .sub-product-title {
             font-size: 16px;
@@ -194,15 +194,18 @@
     <br />
     <br />
 
+   
     <!-- Sub Products Section -->
     <div class="product-container">
         @if (Model != null)
         {
-            var sortedProducts = Model.OrderBy(p => p.price).ToList(); // Sort by price
-            int index = 0;
+            // En düşük fiyatı hesaplama
+            var minPrice = Model.Min(p => p.price);
 
-            @foreach (var product in sortedProducts)
+            // Ürünleri döngüye al
+            for (int j = 0; j < Model.Count; j++)
             {
+                var product = Model[j]; // Döngüdeki eleman
                 <div class="sub-product-card">
                     <div class="product-image">
                         <img src="@product.shopImage" alt="Mağaza Logosu">
@@ -210,16 +213,23 @@
                     <div class="product-details">
                         <h2 class="sub-product-title">@product.name</h2>
                         <p class="sub-product-price">@product.price</p>
-                        @if (index == 0)
+                        @if (product.price == minPrice) // En düşük fiyatlı ürün kontrolü
                         {
-                            <span class="price-badge">En Ucuz</span>
+                            <span class="price-badge">Cheapest Price</span>
                         }
                     </div>
+                    <a asp-controller="PriceComparison"
+                       asp-action="GetProductLink"
+                       asp-route-j="@j"
+                       class="btn btn-primary">
+                        See the Product Page
+                    </a>
                 </div>
-                index++;
             }
         }
     </div>
+
 </body>
 
 </html>
+
