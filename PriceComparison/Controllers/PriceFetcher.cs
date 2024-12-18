@@ -96,24 +96,41 @@ public class PriceFetcher
             {
                 try
                 {
-                    string shopImageXPath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{i}]/div[2]/div/div[1]/div[1]/img";
-                    string nameXPath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{i}]/div[2]/div/div[1]/div[2]/div";
-                    string priceXPath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{i}]/div[2]/div/div[2]/div[1]/div";
+                    string baseXPath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{i}]";
+
+                    // Eleman var mı kontrol et
+                    bool elementExists = _driver.FindElements(By.XPath(baseXPath)).Count > 0;
+                    if (!elementExists)
+                    {
+                        Console.WriteLine($"XPath'te eleman tükendi. Döngü {i}. elemanda sona eriyor.");
+                        break; // Eleman yoksa döngüyü sonlandır
+                    }
+
+                    // XPath'ler
+                    string shopImageXPath = $"{baseXPath}/div[2]/div/div[1]/div[1]/img";
+                    string nameXPath = $"{baseXPath}/div[2]/div/div[1]/div[2]/div";
+                    string priceXPath = $"{baseXPath}/div[2]/div/div[2]/div[1]/div";
                     string productImageXPath = $"/html/body/div[2]/main/div[1]/section[1]/div/div[1]/div[1]/div[1]/div[1]/img";
+
+                    // Verileri çek
                     string shopImage = _wait.Until(drv => drv.FindElement(By.XPath(shopImageXPath))).GetAttribute("src");
                     string name = _wait.Until(drv => drv.FindElement(By.XPath(nameXPath))).Text;
                     string price = _wait.Until(drv => drv.FindElement(By.XPath(priceXPath))).Text;
                     string productImage = _wait.Until(drv => drv.FindElement(By.XPath(productImageXPath))).GetAttribute("src");
+
+                    // Eğer bilgiler boşsa bu elemanı atla
+                    if (string.IsNullOrEmpty(shopImage) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(price) || string.IsNullOrEmpty(productImage))
+                    {
+                        Console.WriteLine($"{i}. öğe atlandı: Eksik bilgi.");
+                        continue;
+                    }
+
                     productDetails.Add((name, price, shopImage, productImage));
-                }
-                catch (NoSuchElementException)
-                {
-                    break; // Eleman bulunamazsa döngüyü kır
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Hata oluştu: {ex.Message}");
-                    break;
+                    Console.WriteLine($"Hata oluştu (Öğe {i}): {ex.Message}");
+                    continue; // Beklenmeyen hata durumunda da devam et
                 }
             }
 
@@ -125,51 +142,75 @@ public class PriceFetcher
             return new List<(string name, string price, string shopImage, string productImage)>();
         }
     }
+
     public static string GetFinalProductLink(int j)
     {
-        string xpath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{j+1}]/div[2]/button";
-                   
-        // Find and click the button using XPath
-        IWebElement element = _driver.FindElement(By.XPath(xpath));
-        element.Click();
-
-        // Wait for the page to load after clicking
-        _wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-
-        // Switch to the newly opened tab or window
-        string originalWindow = _driver.CurrentWindowHandle;
-        string newWindow = _driver.WindowHandles.First(handle => handle != originalWindow);
-        _driver.SwitchTo().Window(newWindow);
-
-        // Wait for the final redirection to complete
-        string previousUrl = string.Empty;
-        string currentUrl = _driver.Url;
-
-        // Keep checking until the URL stops changing
-        for (int i = 0; i < 10; i++) // Retry up to 10 times
+        try
         {
-            Thread.Sleep(1000); // Wait for 1 second
-            currentUrl = _driver.Url;
-
-            if (currentUrl == previousUrl)
+            // Eğer j 3 ise bir artırarak 4 yap
+            if (j == 3)
             {
-                break; // URL has stabilized
+                Console.WriteLine($"j = {j}, 4 olarak güncellendi.");
+                j = 4;
             }
 
-            previousUrl = currentUrl;
+            string xpath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{j + 1}]/div[2]/button";
+
+            // XPath'in mevcut olup olmadığını kontrol et
+            var elements = _driver.FindElements(By.XPath(xpath));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine($"Eleman bulunamadı: {xpath}");
+                return string.Empty; // Eğer eleman yoksa boş string döner
+            }
+
+            // Elemanı bul ve tıkla
+            IWebElement element = elements.First();
+            element.Click();
+
+            // Sayfa yüklemesini bekle
+            _wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+
+            // Yeni sekmeye geç
+            string originalWindow = _driver.CurrentWindowHandle;
+            string newWindow = _driver.WindowHandles.First(handle => handle != originalWindow);
+            _driver.SwitchTo().Window(newWindow);
+
+            // URL'nin stabilize olmasını bekle
+            string previousUrl = string.Empty;
+            string currentUrl = _driver.Url;
+
+            for (int i = 0; i < 10; i++) // En fazla 10 kez dene
+            {
+                Thread.Sleep(1000); // 1 saniye bekle
+                currentUrl = _driver.Url;
+
+                if (currentUrl == previousUrl)
+                {
+                    break; // URL değişmedi, stabilize oldu
+                }
+
+                previousUrl = currentUrl;
+            }
+
+            // Nihai URL'yi al
+            string finalUrl = currentUrl;
+
+            // Yeni sekmeyi kapat ve orijinal sekmeye dön
+            _driver.Close();
+            _driver.SwitchTo().Window(originalWindow);
+            _driver.Navigate().Refresh();
+
+            // Orijinal sayfanın tamamen yüklenmesini bekle
+            _wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+
+            return finalUrl;
         }
-
-        // Capture the final URL
-        string finalUrl = currentUrl;
-
-        // Optionally, close the new tab and return to the original window
-        _driver.Close();
-        _driver.SwitchTo().Window(originalWindow);
-        _driver.Navigate().Refresh();
-        // Wait for the original page to reload completely
-        _wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-
-        return finalUrl;
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Bir hata oluştu: {ex.Message}");
+            return string.Empty; // Hata durumunda boş string döner
+        }
     }
 
 
