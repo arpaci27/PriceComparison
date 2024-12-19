@@ -24,11 +24,12 @@ public class PriceFetcher
         options.AddArgument("--blink-settings=imagesEnabled=false");
         options.AddUserProfilePreference("profile.managed_default_content_settings.stylesheets", 2);
         options.AddArgument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+        options.AddArgument("--enable-unsafe-swiftshader");
 
         _driver = new ChromeDriver(options);
-        _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(0))
+        _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(2))
         {
-            PollingInterval = TimeSpan.FromMilliseconds(0)
+            PollingInterval = TimeSpan.FromMilliseconds(200)
         };
     }
 
@@ -89,36 +90,27 @@ public class PriceFetcher
         {
             _driver.Navigate().GoToUrl(productLink);
             _wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-
+           
             var productDetails = new List<(string name, string price, string shopImage, string productImage)>();
 
-            for (int i = 1; ; i++) // Belirtilen XPath'teki tüm ürünleri bulana kadar devam eder
+            for (int i = 1; ; i++)
             {
                 try
                 {
                     string baseXPath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{i}]";
 
-                    // Eleman var mı kontrol et
                     bool elementExists = _driver.FindElements(By.XPath(baseXPath)).Count > 0;
                     if (!elementExists)
                     {
                         Console.WriteLine($"XPath'te eleman tükendi. Döngü {i}. elemanda sona eriyor.");
-                        break; // Eleman yoksa döngüyü sonlandır
+                        break;
                     }
 
-                    // XPath'ler
-                    string shopImageXPath = $"{baseXPath}/div[2]/div/div[1]/div[1]/img";
-                    string nameXPath = $"{baseXPath}/div[2]/div/div[1]/div[2]/div";
-                    string priceXPath = $"{baseXPath}/div[2]/div/div[2]/div[1]/div";
-                    string productImageXPath = $"/html/body/div[2]/main/div[1]/section[1]/div/div[1]/div[1]/div[1]/div[1]/img";
+                    string shopImage = _driver.FindElement(By.XPath($"{baseXPath}/div[2]/div/div[1]/div[1]/img"))?.GetAttribute("src") ?? "";
+                    string name = _driver.FindElement(By.XPath($"{baseXPath}/div[2]/div/div[1]/div[2]/div"))?.Text ?? "";
+                    string price = _driver.FindElement(By.XPath($"{baseXPath}/div[2]/div/div[2]/div[1]/div"))?.Text ?? "";
+                    string productImage = _driver.FindElement(By.XPath($"/html/body/div[2]/main/div[1]/section[1]/div/div[1]/div[1]/div[1]/div[1]/img"))?.GetAttribute("src") ?? "";
 
-                    // Verileri çek
-                    string shopImage = _wait.Until(drv => drv.FindElement(By.XPath(shopImageXPath))).GetAttribute("src");
-                    string name = _wait.Until(drv => drv.FindElement(By.XPath(nameXPath))).Text;
-                    string price = _wait.Until(drv => drv.FindElement(By.XPath(priceXPath))).Text;
-                    string productImage = _wait.Until(drv => drv.FindElement(By.XPath(productImageXPath))).GetAttribute("src");
-
-                    // Eğer bilgiler boşsa bu elemanı atla
                     if (string.IsNullOrEmpty(shopImage) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(price) || string.IsNullOrEmpty(productImage))
                     {
                         Console.WriteLine($"{i}. öğe atlandı: Eksik bilgi.");
@@ -130,7 +122,7 @@ public class PriceFetcher
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Hata oluştu (Öğe {i}): {ex.Message}");
-                    continue; // Beklenmeyen hata durumunda da devam et
+                    continue;
                 }
             }
 
@@ -154,7 +146,8 @@ public class PriceFetcher
                 j = 4;
             }
 
-            string xpath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{j + 1}]/div[2]/button";
+            int index = (j > 3) ? (j + 2) : (j + 1);
+            string xpath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{index}]/div[2]/button";
 
             // XPath'in mevcut olup olmadığını kontrol et
             var elements = _driver.FindElements(By.XPath(xpath));
