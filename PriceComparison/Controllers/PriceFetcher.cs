@@ -146,6 +146,17 @@ public class PriceFetcher
                 j = 4;
             }
 
+            // Mevcut ürün sayısını kontrol et
+            int productCount = _driver.FindElements(By.XPath("/html/body/div[2]/main/div[1]/section[2]/div[3]/div")).Count;
+            Console.WriteLine($"Mevcut ürün sayısı: {productCount}");
+
+            // j değerini mevcut ürün sayısına göre sınırla
+            if (j > productCount)
+            {
+                Console.WriteLine($"j değeri ({j}) mevcut ürün sayısını ({productCount}) aşıyor. Güncelleniyor.");
+                j = productCount;
+            }
+
             int index = (j > 3) ? (j + 2) : (j + 1);
             string xpath = $"/html/body/div[2]/main/div[1]/section[2]/div[3]/div[{index}]/div[2]/button";
 
