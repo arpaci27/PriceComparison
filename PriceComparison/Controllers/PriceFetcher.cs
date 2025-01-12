@@ -27,9 +27,9 @@ public class PriceFetcher
         options.AddArgument("--enable-unsafe-swiftshader");
 
         _driver = new ChromeDriver(options);
-        _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(2))
+        _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(0))
         {
-            PollingInterval = TimeSpan.FromMilliseconds(200)
+            PollingInterval = TimeSpan.FromMilliseconds(0)
         };
     }
 
@@ -37,7 +37,10 @@ public class PriceFetcher
     {
         string baseUrl = "https://www.cimri.com/{0}?q={1}";
         string searchUrl = string.Format(baseUrl, category, productName);
-
+        string baseurl2 = "https://www.hepsiburada.com/{0}";
+        string baseurl3 = "https://www.epey.com/{0}?q={1}";
+        string baseurl4 = "https://www.amazon.com/{0}/s?k={1}";
+        string baseurl5 = "https://www.pttavm.com/{0}?q={1}";
         try
         {
             Console.WriteLine(searchUrl);
